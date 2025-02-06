@@ -9,7 +9,7 @@ export async function getPostIdFromUrl(postUrl: string, proxy?: string): Promise
 
     console.log(`🔍 Acessando a página da publicação: ${postUrl}`);
     
-    const proxyUrl = postUrl.replace('https://www.instagram.com', '/instagram');
+    const proxyUrl = postUrl;
     
     const config: any = {
       headers: {
