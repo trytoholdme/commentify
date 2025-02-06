@@ -3,8 +3,11 @@ import { initSupabase } from '../lib/supabase';
 export type PlanType = 'starter' | 'pro' | 'tiktok';
 
 interface PaymentConfig {
+<<<<<<< HEAD
   clientId: string;
   clientSecret: string;
+=======
+>>>>>>> 11807a8 (Atualização do projeto)
   plans: {
     [key in PlanType]: {
       offerId: string;
@@ -15,8 +18,11 @@ interface PaymentConfig {
 }
 
 const config: PaymentConfig = {
+<<<<<<< HEAD
   clientId: import.meta.env.VITE_TICTO_CLIENT_ID || '',
   clientSecret: import.meta.env.VITE_TICTO_CLIENT_SECRET || '',
+=======
+>>>>>>> 11807a8 (Atualização do projeto)
   plans: {
     starter: {
       offerId: 'OA0B7FCAE',
@@ -36,6 +42,7 @@ const config: PaymentConfig = {
   }
 };
 
+<<<<<<< HEAD
 export async function createCheckoutSession(planType: PlanType) {
   try {
     const supabase = await initSupabase();
@@ -108,6 +115,31 @@ export async function handleWebhook(request: Request) {
 
     // Mapear status da Ticto para nosso sistema
     const statusMap = {
+=======
+// Token de validação da Ticto
+const TICTO_WEBHOOK_TOKEN = 'L3Bhct3DYwYAlEIAfYiNsD91k8Qj7bck4aTRmLS7dvuSxLqrGzP3keo7iw8hpsu6Qr4j90B7KGe37HgO5a3dz8xanIC0OpKxccuF';
+
+// Função para validar o token do webhook
+export function validateWebhookToken(token: string): boolean {
+  return token === TICTO_WEBHOOK_TOKEN;
+}
+
+// Função para processar o webhook
+export async function handleWebhook(payload: any) {
+  try {
+    const supabase = await initSupabase();
+
+    // Extrair dados relevantes
+    const {
+      transaction,
+      customer,
+      producer,
+      status
+    } = payload;
+
+    // Mapear status da Ticto para nosso sistema
+    const statusMap: { [key: string]: string } = {
+>>>>>>> 11807a8 (Atualização do projeto)
       'authorized': 'active',
       'trial': 'trial',
       'refunded': 'cancelled',
@@ -117,6 +149,7 @@ export async function handleWebhook(request: Request) {
       'all_charges_paid': 'completed'
     };
 
+<<<<<<< HEAD
     // Determinar o tipo de plano baseado no offer_code
     let planType: PlanType | undefined;
     for (const [type, plan] of Object.entries(config.plans)) {
@@ -144,11 +177,73 @@ export async function handleWebhook(request: Request) {
       });
 
     if (error) throw error;
+=======
+    // Determinar o tipo de plano baseado no valor
+    let planType: PlanType;
+    const amount = producer.amount / 100; // Converter centavos para reais
+
+    if (amount === 197) planType = 'pro';
+    else if (amount === 147) planType = 'tiktok';
+    else planType = 'starter';
+
+    // Verificar se o usuário já existe
+    const { data: existingUser } = await supabase
+      .from('auth.users')
+      .select('id')
+      .eq('email', customer.email)
+      .single();
+
+    let userId = existingUser?.id;
+
+    // Se o usuário não existir, criar novo
+    if (!userId) {
+      // Gerar senha aleatória temporária
+      const tempPassword = Math.random().toString(36).slice(-8);
+      
+      const { data: { user }, error: signUpError } = await supabase.auth.signUp({
+        email: customer.email,
+        password: tempPassword,
+        options: {
+          data: {
+            name: customer.name
+          }
+        }
+      });
+
+      if (signUpError) throw signUpError;
+      if (!user) throw new Error('Erro ao criar usuário');
+
+      userId = user.id;
+
+      // Criar perfil
+      await supabase
+        .from('profiles')
+        .insert([{
+          user_id: userId,
+          name: customer.name
+        }]);
+    }
+
+    // Atualizar ou criar assinatura
+    const { error: subscriptionError } = await supabase
+      .from('subscriptions')
+      .upsert({
+        user_id: userId,
+        plan_type: planType,
+        status: statusMap[status] || 'pending',
+        trial_used: status === 'trial',
+        starts_at: new Date().toISOString(),
+        expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 dias
+      });
+
+    if (subscriptionError) throw subscriptionError;
+>>>>>>> 11807a8 (Atualização do projeto)
 
     // Registrar histórico de pagamento
     await supabase
       .from('payment_history')
       .insert({
+<<<<<<< HEAD
         user_id: customer.code,
         order_id: order.id,
         order_hash: order.hash,
@@ -176,4 +271,32 @@ export async function handleWebhook(request: Request) {
 function validateWebhookSignature(payload: any, signature: string): boolean {
   // TODO: Implementar validação da assinatura quando disponível na documentação
   return true;
+=======
+        user_id: userId,
+        order_id: parseInt(transaction.hash.slice(-8), 16),
+        order_hash: transaction.hash,
+        transaction_hash: transaction.pix_qr_code,
+        amount: producer.amount,
+        status,
+        payment_method: 'pix'
+      });
+
+    return {
+      status: 200,
+      body: { 
+        received: true,
+        message: 'Pagamento processado com sucesso'
+      }
+    };
+  } catch (error) {
+    console.error('Erro ao processar pagamento:', error);
+    return {
+      status: 500,
+      body: { 
+        error: 'Erro ao processar pagamento',
+        details: error instanceof Error ? error.message : 'Erro desconhecido'
+      }
+    };
+  }
+>>>>>>> 11807a8 (Atualização do projeto)
 }

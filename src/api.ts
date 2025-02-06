@@ -1,6 +1,43 @@
 import axios from 'axios';
 import { Profile } from './types';
 
+<<<<<<< HEAD
+=======
+// Configuração global do axios
+axios.defaults.timeout = 30000;
+axios.defaults.maxRedirects = 5;
+
+// Headers padrão para todas as requisições
+const defaultHeaders = {
+  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+  'Accept-Language': 'en-US,en;q=0.9',
+  'Accept-Encoding': 'gzip, deflate, br',
+  'Cache-Control': 'no-cache',
+  'Pragma': 'no-cache',
+  'Sec-Fetch-Dest': 'document',
+  'Sec-Fetch-Mode': 'navigate',
+  'Sec-Fetch-Site': 'none',
+  'Sec-Fetch-User': '?1',
+  'Upgrade-Insecure-Requests': '1'
+};
+
+const makeRequest = async (url: string, options: any = {}) => {
+  const isProduction = process.env.NODE_ENV === 'production';
+  
+  if (isProduction) {
+    const response = await axios.post('/api/proxy', {
+      url,
+      method: options.method || 'GET',
+      data: options.data,
+      headers: options.headers
+    });
+    return response.data;
+  }
+  
+  return axios(url, options);
+};
+
+>>>>>>> 11807a8 (Atualização do projeto)
 export async function getPostIdFromUrl(postUrl: string, proxy?: string): Promise<string> {
   try {
     if (!postUrl.match(/https:\/\/(www\.)?instagram\.com\/p\/[\w-]+\/?/)) {
@@ -9,6 +46,7 @@ export async function getPostIdFromUrl(postUrl: string, proxy?: string): Promise
 
     console.log(`🔍 Acessando a página da publicação: ${postUrl}`);
     
+<<<<<<< HEAD
     const proxyUrl = postUrl;
     
     const config: any = {
@@ -21,6 +59,13 @@ export async function getPostIdFromUrl(postUrl: string, proxy?: string): Promise
       },
       maxRedirects: 5,
       timeout: 30000, // 30 second timeout
+=======
+    const config: any = {
+      headers: {
+        ...defaultHeaders,
+        'Host': 'www.instagram.com'
+      },
+>>>>>>> 11807a8 (Atualização do projeto)
       validateStatus: (status: number) => status >= 200 && status < 300
     };
 
@@ -32,6 +77,7 @@ export async function getPostIdFromUrl(postUrl: string, proxy?: string): Promise
         const [hostname, port] = host.split(':');
 
         config.proxy = {
+<<<<<<< HEAD
           protocol: protocol,
           host: hostname,
           port: parseInt(port),
@@ -39,24 +85,43 @@ export async function getPostIdFromUrl(postUrl: string, proxy?: string): Promise
             username,
             password
           }
+=======
+          protocol,
+          host: hostname,
+          port: parseInt(port),
+          auth: { username, password }
+>>>>>>> 11807a8 (Atualização do projeto)
         };
       } catch (error) {
         throw new Error('Formato de proxy inválido. Use: protocol://username:password@host:port');
       }
     }
 
+<<<<<<< HEAD
     const response = await axios.get(proxyUrl, config);
+=======
+    const response = await makeRequest(postUrl, config);
+>>>>>>> 11807a8 (Atualização do projeto)
 
     if (!response.data) {
       throw new Error('Página não retornou conteúdo');
     }
 
+<<<<<<< HEAD
     // Try multiple patterns to find the post ID
+=======
+>>>>>>> 11807a8 (Atualização do projeto)
     const patterns = [
       /"media_id":"(\d+)"/,
       /instagram:\/\/media\?id=(\d+)/,
       /"id":"(\d+)"/,
+<<<<<<< HEAD
       /data\-media\-id="(\d+)"/
+=======
+      /data\-media\-id="(\d+)"/,
+      /instagram:\/\/media\?id=(\d+)/,
+      /"id":"(\d+)_(\d+)"/
+>>>>>>> 11807a8 (Atualização do projeto)
     ];
 
     for (const pattern of patterns) {
@@ -67,7 +132,10 @@ export async function getPostIdFromUrl(postUrl: string, proxy?: string): Promise
       }
     }
 
+<<<<<<< HEAD
     // Check if the page indicates the post doesn't exist
+=======
+>>>>>>> 11807a8 (Atualização do projeto)
     if (response.data.includes('Página não encontrada') || 
         response.data.includes('Page Not Found') ||
         response.data.includes('Sorry, this page isn')) {
@@ -94,12 +162,18 @@ export async function getPostIdFromUrl(postUrl: string, proxy?: string): Promise
       }
     }
     
+<<<<<<< HEAD
     // Se for um erro que já tratamos, repassa a mensagem
+=======
+>>>>>>> 11807a8 (Atualização do projeto)
     if (error instanceof Error) {
       throw error;
     }
 
+<<<<<<< HEAD
     // Erro genérico
+=======
+>>>>>>> 11807a8 (Atualização do projeto)
     console.error('❌ Erro ao obter ID da publicação:', error);
     throw new Error('Erro inesperado ao obter ID da publicação. Tente novamente.');
   }
@@ -138,6 +212,11 @@ export async function comentarInstagram({ profile, postUrl, comment }: PostComme
 
     const sessionid = cookies.find((c: any) => c.name === 'sessionid')?.value;
     const csrftoken = cookies.find((c: any) => c.name === 'csrftoken')?.value;
+<<<<<<< HEAD
+=======
+    const mid = cookies.find((c: any) => c.name === 'mid')?.value;
+    const ig_did = cookies.find((c: any) => c.name === 'ig_did')?.value;
+>>>>>>> 11807a8 (Atualização do projeto)
 
     if (!sessionid || !csrftoken) {
       throw new Error('Cookies sessionid ou csrftoken não encontrados. Verifique o cookie do perfil.');
@@ -147,6 +226,7 @@ export async function comentarInstagram({ profile, postUrl, comment }: PostComme
 
     const config: any = {
       headers: {
+<<<<<<< HEAD
         'Content-Type': 'application/x-www-form-urlencoded',
         'X-CSRFToken': csrftoken,
         'X-Instagram-AJAX': '1019667473',
@@ -157,6 +237,20 @@ export async function comentarInstagram({ profile, postUrl, comment }: PostComme
         'Referer': postUrl
       },
       timeout: 30000,
+=======
+        ...defaultHeaders,
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-CSRFToken': csrftoken,
+        'X-Instagram-AJAX': '1',
+        'X-IG-App-ID': '936619743392459',
+        'X-IG-WWW-Claim': '0',
+        'X-Requested-With': 'XMLHttpRequest',
+        'Cookie': cookieString,
+        'Origin': 'https://www.instagram.com',
+        'Referer': postUrl,
+        'Host': 'www.instagram.com'
+      },
+>>>>>>> 11807a8 (Atualização do projeto)
       validateStatus: (status: number) => status >= 200 && status < 300
     };
 
@@ -168,7 +262,11 @@ export async function comentarInstagram({ profile, postUrl, comment }: PostComme
         const [hostname, port] = host.split(':');
 
         config.proxy = {
+<<<<<<< HEAD
           protocol: protocol,
+=======
+          protocol,
+>>>>>>> 11807a8 (Atualização do projeto)
           host: hostname,
           port: parseInt(port),
           auth: {
@@ -181,10 +279,24 @@ export async function comentarInstagram({ profile, postUrl, comment }: PostComme
       }
     }
 
+<<<<<<< HEAD
     const response = await axios.post(
       `/instagram/api/v1/web/comments/${postId}/add/`,
       `comment_text=${encodeURIComponent(comment)}`,
       config
+=======
+    // Adicionar delay aleatório para evitar detecção
+    await new Promise(resolve => setTimeout(resolve, Math.random() * 2000 + 1000));
+
+    const response = await makeRequest(
+      `https://www.instagram.com/api/v1/web/comments/${postId}/add/`,
+      {
+        method: 'POST',
+        data: `comment_text=${encodeURIComponent(comment)}`,
+        headers: config.headers,
+        proxy: config.proxy
+      }
+>>>>>>> 11807a8 (Atualização do projeto)
     );
 
     if (response.data.status === 'ok' || response.status === 200) {
@@ -215,14 +327,24 @@ export async function comentarInstagram({ profile, postUrl, comment }: PostComme
       }
     }
 
+<<<<<<< HEAD
     // Se for um erro que já tratamos, repassa a mensagem
+=======
+>>>>>>> 11807a8 (Atualização do projeto)
     if (error instanceof Error) {
       console.error(`❌ Erro na conta ${profile.name}:`, error.message);
       throw error;
     }
 
+<<<<<<< HEAD
     // Erro genérico
     console.error(`❌ Erro na conta ${profile.name}:`, error);
     throw new Error('Erro inesperado ao comentar. Tente novamente.');
   }
 }
+=======
+    console.error(`❌ Erro na conta ${profile.name}:`, error);
+    throw new Error('Erro inesperado ao comentar. Tente novamente.');
+  }
+}
+>>>>>>> 11807a8 (Atualização do projeto)
