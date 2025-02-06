@@ -1,5 +1,12 @@
 {
   "version": 2,
+  "functions": {
+    "api/proxy.ts": {
+      "runtime": "nodejs18.x",
+      "memory": 1024,
+      "maxDuration": 10
+    }
+  },
   "routes": [
     {
       "src": "/api/proxy",
@@ -12,11 +19,5 @@
         "Access-Control-Expose-Headers": "set-cookie"
       }
     }
-  ],
-  "functions": {
-    "api/proxy.ts": {
-      "memory": 1024,
-      "maxDuration": 10
-    }
-  }
+  ]
 }
