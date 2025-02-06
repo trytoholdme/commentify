@@ -18,5 +18,9 @@
       "memory": 1024,
       "maxDuration": 10
     }
+  },
+  "build": {
+    "src": "api/proxy.ts",
+    "use": "@vercel/node"
   }
 }
