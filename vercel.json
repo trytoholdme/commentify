@@ -1,12 +1,5 @@
 {
   "version": 2,
-  "functions": {
-    "api/proxy.ts": {
-      "runtime": "@vercel/node@18.x",
-      "memory": 1024,
-      "maxDuration": 10
-    }
-  },
   "routes": [
     {
       "src": "/api/proxy",
