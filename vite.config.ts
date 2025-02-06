@@ -30,27 +30,12 @@ export default defineConfig({
       '/instagram': {
         target: 'https://www.instagram.com',
         changeOrigin: true,
-<<<<<<< HEAD
-=======
         secure: false,
->>>>>>> 11807a8 (Atualização do projeto)
         rewrite: (path) => path.replace(/^\/instagram/, ''),
         configure: (proxy, _options) => {
           proxy.on('error', (err, _req, _res) => {
             console.log('proxy error', err);
           });
-<<<<<<< HEAD
-          proxy.on('proxyReq', (proxyReq, req, _res) => {
-            const cookies = req.headers['x-instagram-cookies'];
-            if (cookies) {
-              proxyReq.setHeader('Cookie', cookies);
-            }
-
-            const relevantHeaders = [
-              'user-agent',
-              'origin',
-              'referer',
-=======
 
           proxy.on('proxyReq', (proxyReq, req, _res) => {
             // Remover headers problemáticos
@@ -74,7 +59,6 @@ export default defineConfig({
 
             // Copiar outros headers relevantes
             const relevantHeaders = [
->>>>>>> 11807a8 (Atualização do projeto)
               'x-csrftoken',
               'x-instagram-ajax',
               'x-requested-with'
@@ -87,18 +71,6 @@ export default defineConfig({
               }
             });
           });
-<<<<<<< HEAD
-          proxy.on('proxyRes', (proxyRes, req, res) => {
-            res.setHeader('Access-Control-Allow-Origin', '*');
-            res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-            res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Instagram-Cookies, X-CSRFToken, X-Instagram-AJAX, X-Requested-With, Origin, Accept');
-            res.setHeader('Access-Control-Allow-Credentials', 'true');
-          });
-        },
-      },
-    },
-  },
-=======
 
           proxy.on('proxyRes', (proxyRes, req, res) => {
             // Configurar CORS
@@ -117,5 +89,4 @@ export default defineConfig({
       }
     }
   }
->>>>>>> 11807a8 (Atualização do projeto)
 });
